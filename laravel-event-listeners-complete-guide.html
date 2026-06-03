@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laravel Event Listeners: Complete Guide with Examples (2026) | Laravel 13 + PHP 8.5</title>
+  <meta name="description" content="Master Laravel Event Listeners in Laravel 13 with PHP 8.5. PHP Attribute syntax, ShouldBeDiscovered, Queue::route(), queued listeners, subscribers, pro tips, and every pitfall — production-ready code examples." />
+  <meta name="keywords" content="Laravel Event Listeners, Laravel 13 event listeners, PHP 8.5 Laravel, queued event listeners, ShouldQueue Laravel, ShouldBeDiscovered, Queue::route(), Laravel event subscriber, PHP attributes listeners" />
+  <link rel="canonical" href="https://yourdomain.com/laravel-event-listeners-complete-guide" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Laravel Event Listeners: Complete Guide — Laravel 13 + PHP 8.5 (2026)" />
+  <meta property="og:description" content="Master Laravel Event Listeners with real-world Laravel 13 examples. PHP Attribute syntax, async queuing, ShouldBeDiscovered, Queue::route(), and every pitfall mapped out." />
+  <meta property="og:type" content="article" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Highlight.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/tomorrow-night.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+
+<style>
+/* ─── CSS Variables ─────────────────────────────────────── */
+:root {
+  --bg:          #060a14;
+  --surface:     #0c1526;
+  --surface2:    #101e35;
+  --surface3:    #162540;
+  --border:      #1c2f50;
+  --border2:     #243a5e;
+  --teal:        #00ddb3;
+  --teal-dim:    #00a88880;
+  --teal-glow:   #00ddb318;
+  --amber:       #ffb84d;
+  --amber-dim:   #ffb84d25;
+  --red:         #ff5e5e;
+  --red-dim:     #ff5e5e20;
+  --purple:      #a78bfa;
+  --purple-dim:  #a78bfa20;
+  --green:       #4ade80;
+  --green-dim:   #4ade8020;
+  --text:        #dde5f4;
+  --text2:       #7e95bc;
+  --text3:       #4a6080;
+  --heading:     #f0f6ff;
+  --code-bg:     #080e1c;
+  --radius:      12px;
+  --radius-sm:   8px;
+  --radius-lg:   18px;
+  --transition:  0.22s cubic-bezier(.4,0,.2,1);
+}
+
+/* ─── Reset & Base ──────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  line-height: 1.75;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Progress Bar ──────────────────────────────────────── */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 0%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--teal), var(--purple));
+  z-index: 9999;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 12px var(--teal);
+}
+
+/* ─── Header ────────────────────────────────────────────── */
+header {
+  position: fixed;
+  top: 3px; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(6,10,20,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--heading);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.logo span {
+  color: var(--teal);
+}
+.header-links {
+  display: flex;
+  gap: 0.25rem;
+  list-style: none;
+}
+.header-links a {
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 400;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  transition: color var(--transition), background var(--transition);
+  white-space: nowrap;
+}
+.header-links a:hover {
+  color: var(--teal);
+  background: var(--teal-glow);
+}
+
+/* ─── Hero ──────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  padding: 140px 2rem 80px;
+  max-width: 900px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -120px; left: 50%;
+  transform: translateX(-50%);
+  width: 900px; height: 600px;
+  background: radial-gradient(ellipse at center, rgba(0,221,179,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--teal-glow);
+  border: 1px solid var(--teal-dim);
+  color: var(--teal);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.3rem 0.85rem;
+  border-radius: 100px;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  animation: fadeSlideDown 0.6s ease both;
+}
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  color: var(--heading);
+  line-height: 1.15;
+  margin-bottom: 1.25rem;
+  animation: fadeSlideDown 0.7s 0.1s ease both;
+}
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--teal), var(--purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-desc {
+  font-size: 1.05rem;
+  color: var(--text2);
+  max-width: 680px;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  animation: fadeSlideDown 0.7s 0.2s ease both;
+}
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  animation: fadeSlideDown 0.7s 0.3s ease both;
+}
+.hero-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--text3);
+}
+.hero-meta-item svg { flex-shrink: 0; }
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.75rem;
+  animation: fadeSlideDown 0.7s 0.35s ease both;
+}
+.tag {
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+}
+
+/* ─── Layout ────────────────────────────────────────────── */
+.layout {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem 6rem;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+/* ─── TOC Sidebar ───────────────────────────────────────── */
+.toc-sidebar {
+  position: sticky;
+  top: 80px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.toc-sidebar::-webkit-scrollbar { width: 4px; }
+.toc-sidebar::-webkit-scrollbar-track { background: transparent; }
+.toc-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.toc-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 0 0 0.75rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.75rem;
+  display: block;
+}
+.toc-nav { list-style: none; }
+.toc-nav li { margin: 0; }
+.toc-nav a {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text2);
+  text-decoration: none;
+  padding: 0.35rem 0.75rem;
+  border-left: 2px solid transparent;
+  border-radius: 0 4px 4px 0;
+  transition: all var(--transition);
+  line-height: 1.4;
+}
+.toc-nav a:hover,
+.toc-nav a.active {
+  color: var(--teal);
+  border-left-color: var(--teal);
+  background: var(--teal-glow);
+}
+.toc-nav .toc-sub {
+  padding-left: 1.5rem;
+  font-size: 0.74rem;
+}
+
+/* ─── Article Content ───────────────────────────────────── */
+.article-content {
+  min-width: 0;
+}
+
+/* ─── Section ───────────────────────────────────────────── */
+.section {
+  margin-bottom: 4rem;
+  animation: fadeUp 0.5s ease both;
+}
+.section-label {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--teal);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 1.25rem;
+  line-height: 1.2;
+  scroll-margin-top: 90px;
+}
+h2 .hash {
+  color: var(--teal);
+  margin-right: 0.3em;
+  opacity: 0.5;
+  font-weight: 400;
+  font-size: 0.9em;
+}
+h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin: 2rem 0 0.75rem;
+  scroll-margin-top: 90px;
+}
+h4 {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+  margin: 1.5rem 0 0.5rem;
+  font-family: 'Syne', sans-serif;
+}
+p {
+  color: var(--text);
+  margin-bottom: 1.1rem;
+  font-size: 0.97rem;
+}
+strong { color: var(--heading); font-weight: 500; }
+em { color: var(--purple); font-style: italic; }
+a { color: var(--teal); text-decoration: none; border-bottom: 1px solid var(--teal-dim); transition: border-color var(--transition), color var(--transition); }
+a:hover { color: #fff; border-bottom-color: var(--teal); }
+hr { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+/* ─── Inline Code ───────────────────────────────────────── */
+code:not(pre code) {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82em;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--teal);
+  padding: 0.15em 0.45em;
+  border-radius: 5px;
+}
+
+/* ─── Code Block ────────────────────────────────────────── */
+.code-block {
+  position: relative;
+  margin: 1.5rem 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.code-dots {
+  display: flex;
+  gap: 6px;
+}
+.code-dots span {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+.code-dots .d1 { background: #ff5f56; }
+.code-dots .d2 { background: #ffbd2e; }
+.code-dots .d3 { background: #27c93f; }
+.code-lang {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.copy-btn {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text3);
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 0.2rem 0.6rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.copy-btn:hover {
+  color: var(--teal);
+  border-color: var(--teal-dim);
+  background: var(--teal-glow);
+}
+.copy-btn.copied { color: var(--green); border-color: var(--green-dim); }
+.code-block pre {
+  margin: 0;
+  padding: 1.2rem 1.25rem;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  background: transparent !important;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.code-block pre::-webkit-scrollbar { height: 4px; }
+.code-block pre::-webkit-scrollbar-track { background: transparent; }
+.code-block pre::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.code-block code { background: transparent !important; border: none !important; padding: 0 !important; color: inherit !important; font-size: inherit !important; border-radius: 0 !important; }
+
+/* Plain text / terminal code block */
+.code-block.plain pre { color: #8be0c4; }
+
+/* ─── Callout Boxes ─────────────────────────────────────── */
+.callout {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-sm);
+  margin: 1.5rem 0;
+  border-left: 3px solid;
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+.callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+.callout-body { flex: 1; }
+.callout-body strong { display: block; margin-bottom: 0.3rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+.callout p { margin: 0; color: inherit; font-size: 0.9rem; }
+
+.callout.info {
+  background: var(--teal-glow);
+  border-color: var(--teal);
+  color: var(--text);
+}
+.callout.info strong { color: var(--teal); }
+
+.callout.warning {
+  background: var(--amber-dim);
+  border-color: var(--amber);
+  color: var(--text);
+}
+.callout.warning strong { color: var(--amber); }
+
+.callout.danger {
+  background: var(--red-dim);
+  border-color: var(--red);
+  color: var(--text);
+}
+.callout.danger strong { color: var(--red); }
+
+.callout.tip {
+  background: var(--green-dim);
+  border-color: var(--green);
+  color: var(--text);
+}
+.callout.tip strong { color: var(--green); }
+
+.callout.purple {
+  background: var(--purple-dim);
+  border-color: var(--purple);
+  color: var(--text);
+}
+.callout.purple strong { color: var(--purple); }
+
+/* ─── Pro Tip Block ─────────────────────────────────────── */
+.pro-tip {
+  background: linear-gradient(135deg, rgba(0,221,179,0.05), rgba(167,139,250,0.05));
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin: 1.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+.pro-tip::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: linear-gradient(to bottom, var(--teal), var(--purple));
+}
+.pro-tip-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--teal);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.pro-tip p { margin-bottom: 0.5rem; font-size: 0.92rem; }
+.pro-tip p:last-child { margin-bottom: 0; }
+
+/* ─── Mistake Block ─────────────────────────────────────── */
+.mistake-block {
+  background: var(--red-dim);
+  border: 1px solid rgba(255,94,94,0.2);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin: 1.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+.mistake-block::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: var(--red);
+}
+.mistake-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--red);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ─── Steps ─────────────────────────────────────────────── */
+.steps { counter-reset: step; margin: 2rem 0; }
+.step {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+.step-num {
+  flex-shrink: 0;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 2px solid var(--teal-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--teal);
+  margin-top: 0.2rem;
+}
+.step-body { flex: 1; min-width: 0; }
+.step-body h3 { margin-top: 0; margin-bottom: 0.75rem; }
+
+/* ─── Feature Grid ──────────────────────────────────────── */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.feature-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  transition: border-color var(--transition), transform var(--transition);
+}
+.feature-card:hover {
+  border-color: var(--border2);
+  transform: translateY(-2px);
+}
+.feature-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.6rem;
+}
+.feature-card h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--heading);
+  margin: 0 0 0.4rem;
+}
+.feature-card p {
+  font-size: 0.83rem;
+  color: var(--text2);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ─── Flow Diagram ──────────────────────────────────────── */
+.flow-diagram {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem 2rem;
+  margin: 1.5rem 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  line-height: 1.9;
+  color: #8be0c4;
+  overflow-x: auto;
+}
+.flow-diagram .flow-title {
+  color: var(--text3);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+.flow-diagram .f-event { color: var(--teal); }
+.flow-diagram .f-arrow { color: var(--text3); }
+.flow-diagram .f-listener { color: var(--purple); }
+.flow-diagram .f-comment { color: var(--text3); font-style: italic; }
+.flow-diagram .f-step { color: var(--amber); }
+.flow-diagram .f-pipe { color: var(--border2); }
+
+/* ─── Comparison Table ──────────────────────────────────── */
+.table-wrap {
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+thead tr {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+thead th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  color: var(--heading);
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+}
+thead th:first-child { color: var(--text3); }
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--surface); }
+tbody td {
+  padding: 0.7rem 1rem;
+  color: var(--text);
+  vertical-align: top;
+}
+tbody td:first-child {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--text2);
+  font-weight: 500;
+}
+.yes { color: var(--green); }
+.no  { color: var(--red); }
+
+/* ─── FAQ ───────────────────────────────────────────────── */
+.faq-list { margin: 1.5rem 0; }
+.faq-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+.faq-item:hover { border-color: var(--border2); }
+.faq-q {
+  width: 100%;
+  background: var(--surface);
+  border: none;
+  color: var(--heading);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: left;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: background var(--transition), color var(--transition);
+}
+.faq-q:hover { background: var(--surface2); color: var(--teal); }
+.faq-q .faq-icon {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  transition: transform var(--transition), background var(--transition);
+}
+.faq-item.open .faq-icon { transform: rotate(45deg); background: var(--teal-glow); color: var(--teal); }
+.faq-a {
+  display: none;
+  padding: 0 1.25rem 1rem;
+  background: var(--surface);
+  font-size: 0.88rem;
+  color: var(--text2);
+  line-height: 1.7;
+  border-top: 1px solid var(--border);
+}
+.faq-a p { margin: 0.75rem 0 0; color: var(--text2); font-size: 0.88rem; }
+.faq-item.open .faq-a { display: block; }
+
+/* ─── Summary Box ───────────────────────────────────────── */
+.summary-box {
+  background: linear-gradient(135deg, rgba(0,221,179,0.07), rgba(167,139,250,0.07));
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  margin: 2rem 0;
+}
+.summary-box h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.1rem;
+  color: var(--heading);
+  margin: 0 0 1rem;
+}
+.summary-list { list-style: none; padding: 0; }
+.summary-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+  font-size: 0.9rem;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+.summary-list li:last-child { border-bottom: none; }
+.summary-list li::before {
+  content: '→';
+  color: var(--teal);
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.summary-list strong { color: var(--teal); }
+
+/* ─── Related Articles ──────────────────────────────────── */
+.related-section {
+  margin-top: 5rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--border);
+}
+.related-section h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+.related-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  text-decoration: none;
+  border-bottom: none;
+  display: block;
+  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.related-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--teal), var(--purple));
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.related-card:hover {
+  border-color: var(--border2);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+.related-card:hover::before { opacity: 1; }
+.related-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.65rem;
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.6rem;
+  border-radius: 100px;
+  margin-bottom: 0.85rem;
+}
+.related-badge.orange {
+  background: rgba(255,183,77,0.1);
+  border: 1px solid rgba(255,183,77,0.3);
+  color: var(--amber);
+}
+.related-badge.purple {
+  background: rgba(167,139,250,0.1);
+  border: 1px solid rgba(167,139,250,0.3);
+  color: var(--purple);
+}
+.related-card h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--heading);
+  margin: 0 0 0.5rem;
+  line-height: 1.35;
+}
+.related-card p {
+  font-size: 0.82rem;
+  color: var(--text2);
+  margin: 0 0 1rem;
+  line-height: 1.6;
+}
+.related-card .read-link {
+  font-size: 0.78rem;
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  color: var(--teal);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: none;
+}
+
+/* ─── Scroll to Top ─────────────────────────────────────── */
+#scroll-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  z-index: 50;
+  transition: all var(--transition);
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+}
+#scroll-top.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+#scroll-top:hover {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #000;
+}
+
+/* ─── Animations ────────────────────────────────────────── */
+@keyframes fadeSlideDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Responsive ────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .toc-sidebar {
+    position: static;
+    max-height: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+  }
+  .hero { padding: 110px 1.25rem 60px; }
+  .layout { padding: 0 1.25rem 4rem; }
+}
+@media (max-width: 600px) {
+  .header-links { display: none; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .related-grid { grid-template-columns: 1fr; }
+  h2 { font-size: 1.4rem; }
+}
+
+/* Fix hljs theme to match our bg */
+.hljs { background: transparent !important; }
+</style>
+</head>
+
+<body>
+
+<!-- Progress Bar -->
+<div id="progress-bar"></div>
+
+<!-- Header -->
+<header>
+  <div class="header-inner">
+    <a class="logo" href="#"><span>&lt;</span>LaravelDeep<span>/&gt;</span></a>
+    <ul class="header-links">
+      <li><a href="how-to-use-laravel-observers-clean-code.html">Observer Guide</a></li>
+      <li><a href="laravel-event-listeners-vs-observers-difference.html">Listeners vs Observers</a></li>
+    </ul>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-badge">
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="5"/></svg>
+    Deep Dive · 2026 Edition
+  </div>
+  <h1>Mastering Laravel<br /><em>Event Listeners</em></h1>
+  <p class="hero-desc">The complete, production-ready guide for <strong>Laravel 13 + PHP 8.5</strong> — covering queued listeners, event subscribers, and every pitfall mapped out with real-world code examples.</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      ~20 min read
+    </div>
+    <div class="hero-meta-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Laravel 13 · PHP 8.3+ / 8.5
+    </div>
+    <div class="hero-meta-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Intermediate → Advanced
+    </div>
+  </div>
+  <div class="hero-tags">
+    <span class="tag">Laravel 13</span>
+    <span class="tag">PHP 8.5</span>
+    <span class="tag">Event Listeners</span>
+    <span class="tag">ShouldQueue</span>
+    <span class="tag">PHP Attributes</span>
+    <span class="tag">ShouldBeDiscovered</span>
+    <span class="tag">Queue::route()</span>
+    <span class="tag">Observer Pattern</span>
+  </div>
+</section>
+
+<!-- Main Layout -->
+<div class="layout">
+
+  <!-- TOC Sidebar -->
+  <aside class="toc-sidebar">
+    <span class="toc-label">On this page</span>
+    <nav>
+      <ul class="toc-nav">
+        <li><a href="#what-are">What Are Event Listeners?</a></li>
+        <li><a href="#why-use">Why Use Them?</a></li>
+        <li><a href="#how-works">How It Works Internally</a></li>
+        <li><a href="#step-by-step">Step-by-Step Guide</a></li>
+        <li><a class="toc-sub" href="#step1">Step 1 · Create Event</a></li>
+        <li><a class="toc-sub" href="#step2">Step 2 · Create Listeners</a></li>
+        <li><a class="toc-sub" href="#step3">Step 3 · Register</a></li>
+        <li><a class="toc-sub" href="#step4">Step 4 · Dispatch</a></li>
+        <li><a href="#dispatching-ways">Dispatching: All the Ways</a></li>
+        <li><a href="#queued">Queued Listeners (Async)</a></li>
+        <li><a href="#laravel13">🆕 Laravel 13 Attribute Syntax</a></li>
+        <li><a class="toc-sub" href="#php-attrs">PHP Attribute Config</a></li>
+        <li><a class="toc-sub" href="#queue-route">Queue::route()</a></li>
+        <li><a class="toc-sub" href="#should-discover">ShouldBeDiscovered</a></li>
+        <li><a href="#subscribers">Event Subscribers</a></li>
+        <li><a href="#wildcard">Wildcard Listeners</a></li>
+        <li><a href="#payloads">Passing Data (Best Practices)</a></li>
+        <li><a href="#propagation">Stop Event Propagation</a></li>
+        <li><a href="#testing">Testing Event Listeners</a></li>
+        <li><a href="#cannot-do">What You Cannot Do</a></li>
+        <li><a href="#pro-tips">Pro Tips &amp; Tricks</a></li>
+        <li><a href="#mistakes">Common Mistakes</a></li>
+        <li><a href="#comparison">vs Observers (Table)</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#summary">Summary</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Article Content -->
+  <main class="article-content">
+
+    <!-- ─── Section 1 ─── -->
+    <section class="section" id="what-are">
+      <span class="section-label">// 01</span>
+      <h2><span class="hash">#</span>What Are Laravel Event Listeners?</h2>
+      <p>Laravel Event Listeners are a powerful implementation of the <strong>Observer design pattern</strong> built directly into the framework. They let different parts of your application communicate <strong>without being tightly coupled</strong> — one piece of code can trigger actions without knowing anything about what those actions are.</p>
+      <p>Think of it like a radio broadcast: one station (the <em>event</em>) broadcasts a signal, and multiple radios (the <em>listeners</em>) tune in and react independently. The broadcast doesn't care who is listening.</p>
+      <p>In technical terms:</p>
+      <ul style="list-style:none;padding:0;margin-bottom:1rem;">
+        <li style="padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.92rem;"><span style="color:var(--teal);font-family:'JetBrains Mono',monospace;font-size:0.8rem;">Event</span> — A plain PHP class acting as a data container describing something that happened: <code>UserRegistered</code>, <code>OrderPlaced</code>, <code>PaymentFailed</code>.</li>
+        <li style="padding:0.35rem 0;font-size:0.92rem;"><span style="color:var(--purple);font-family:'JetBrains Mono',monospace;font-size:0.8rem;">Listener</span> — A class that handles what should happen in response: send a welcome email, notify admin, clear a cache.</li>
+      </ul>
+
+      <div class="flow-diagram">
+        <span class="flow-title">// event dispatch flow</span>
+<span class="f-event">[User Registers]</span> <span class="f-arrow">→</span> <span class="f-event">UserRegistered::dispatch($user)</span>
+                        <span class="f-pipe">│</span>
+                        <span class="f-pipe">├──</span> <span class="f-listener">SendWelcomeEmail::handle()</span>
+                        <span class="f-pipe">├──</span> <span class="f-listener">NotifyAdminListener::handle()</span>
+                        <span class="f-pipe">└──</span> <span class="f-listener">CreateUserProfile::handle()</span>
+      </div>
+
+      <div class="callout info">
+        <div class="callout-icon">📌</div>
+        <div class="callout-body">
+          <strong>Related Reading</strong>
+          <p>If your logic is tightly tied to a single database model (like auto-generating a slug), you may want <a href="how-to-use-laravel-observers-clean-code.html">Laravel Model Observers</a> instead. For a side-by-side architectural breakdown, see <a href="laravel-event-listeners-vs-observers-difference.html">Event Listeners vs. Observers</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section 2 ─── -->
+    <section class="section" id="why-use">
+      <span class="section-label">// 02</span>
+      <h2><span class="hash">#</span>Why Should You Use Event Listeners?</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🔌</div>
+          <h4>Decoupled Code</h4>
+          <p>Your <code>UserController</code> only creates the user. It knows nothing about emails, analytics, or coupons.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔓</div>
+          <h4>Open/Closed Principle</h4>
+          <p>Add an SMS notification on registration without modifying a single line of existing code. Just add a new listener.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h4>Async Queue Support</h4>
+          <p>Turn any listener into a background job with one interface. HTTP responses stay lightning fast.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🧪</div>
+          <h4>Isolated Testing</h4>
+          <p>Each listener has a single <code>handle()</code> method. Test it in pure isolation — no HTTP request needed.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔁</div>
+          <h4>Multiple Listeners</h4>
+          <p>One event triggers 10 listeners simultaneously. Impossible to do cleanly with inline controller code.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🏗️</div>
+          <h4>SOLID Architecture</h4>
+          <p>Each listener is a single-responsibility class — small, focused, and independently replaceable.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section 3 ─── -->
+    <section class="section" id="how-works">
+      <span class="section-label">// 03</span>
+      <h2><span class="hash">#</span>How the Laravel Event System Works Internally</h2>
+      <p>Before writing code, understanding the flow will save you hours of debugging.</p>
+
+      <div class="flow-diagram">
+        <span class="flow-title">// internal dispatch pipeline</span>
+<span class="f-step">1.</span> Event dispatched    <span class="f-arrow">→</span>  <span class="f-event">Event::dispatch()</span> or <span class="f-event">event()</span> helper
+<span class="f-step">2.</span> Laravel looks up    <span class="f-arrow">→</span>  AppServiceProvider bindings
+<span class="f-step">3.</span> Finds all listeners <span class="f-arrow">→</span>  <span class="f-listener">One or many Listener classes</span> mapped to the event
+<span class="f-step">4.</span> Executes handle()   <span class="f-arrow">→</span>  Synchronously <span class="f-comment">OR</span> pushes to queue if <span class="f-event">ShouldQueue</span>
+<span class="f-step">5.</span> Returns control    <span class="f-arrow">→</span>  Back to your controller immediately
+      </div>
+
+      <p>Laravel uses an internal <code>Illuminate\Events\Dispatcher</code> to manage this entire flow. <strong>Key files involved:</strong></p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0.75rem;margin:1rem 0;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.85rem 1rem;">
+          <code style="font-size:0.75rem;">app/Events/</code>
+          <p style="font-size:0.78rem;color:var(--text2);margin:0.3rem 0 0;">Your event classes</p>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.85rem 1rem;">
+          <code style="font-size:0.75rem;">app/Listeners/</code>
+          <p style="font-size:0.78rem;color:var(--text2);margin:0.3rem 0 0;">Your listener classes</p>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.85rem 1rem;">
+          <code style="font-size:0.75rem;">AppServiceProvider.php</code>
+          <p style="font-size:0.78rem;color:var(--text2);margin:0.3rem 0 0;">Where bindings are registered</p>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0.85rem 1rem;">
+          <code style="font-size:0.75rem;">config/queue.php</code>
+          <p style="font-size:0.78rem;color:var(--text2);margin:0.3rem 0 0;">Async queue config</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section 4 ─── -->
+    <section class="section" id="step-by-step">
+      <span class="section-label">// 04</span>
+      <h2><span class="hash">#</span>Step-by-Step: Your First Event Listener</h2>
+      <p>Let's build a production-ready <strong>User Registration</strong> system with multiple listeners from scratch.</p>
+
+      <div class="steps">
+        <!-- Step 1 -->
+        <div class="step" id="step1">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h3>Generate the Event Class</h3>
+            <div class="code-block">
+              <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+              <pre><code class="language-bash">php artisan make:event UserRegistered</code></pre>
+            </div>
+            <p>This creates <code>app/Events/UserRegistered.php</code>. Edit it:</p>
+            <div class="code-block">
+              <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php · app/Events/UserRegistered.php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+              <pre><code class="language-php">&lt;?php
+
+namespace App\Events;
+
+use App\Models\User;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Broadcasting\InteractsWithSockets;
+
+class UserRegistered
+{
+    use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    /**
+     * PHP 8 Constructor Promotion — clean and concise.
+     */
+    public function __construct(
+        public User $user,
+        public string $registrationSource = 'web'
+    ) {}
+}</code></pre>
+            </div>
+            <div class="callout info">
+              <div class="callout-icon">💡</div>
+              <div class="callout-body">
+                <strong>Why SerializesModels?</strong>
+                <p>When a listener is queued, the event is serialized. <code>SerializesModels</code> stores Eloquent models by their ID and re-fetches them when the job runs — preventing giant object serialization.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step" id="step2">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h3>Generate the Listener Classes</h3>
+            <div class="code-block">
+              <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+              <pre><code class="language-bash">php artisan make:listener SendWelcomeEmail --event=UserRegistered
+php artisan make:listener NotifyAdminOfNewUser --event=UserRegistered
+php artisan make:listener GenerateUserProfile --event=UserRegistered</code></pre>
+            </div>
+            <h4>Listener 1 · Send Welcome Email</h4>
+            <div class="code-block">
+              <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php · SendWelcomeEmail.php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+              <pre><code class="language-php">&lt;?php
+namespace App\Listeners;
+
+use App\Events\UserRegistered;
+use App\Mail\WelcomeMail;
+use Illuminate\Support\Facades\Mail;
+
+class SendWelcomeEmail
+{
+    public function handle(UserRegistered $event): void
+    {
+        Mail::to($event->user->email)
+            ->send(new WelcomeMail($event->user));
+    }
+}</code></pre>
+            </div>
+            <h4>Listener 2 · Notify Admin</h4>
+            <div class="code-block">
+              <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php · NotifyAdminOfNewUser.php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+              <pre><code class="language-php">&lt;?php
+namespace App\Listeners;
+
+use App\Events\UserRegistered;
+use App\Notifications\NewUserRegistered;
+use App\Models\User;
+
+class NotifyAdminOfNewUser
+{
+    public function handle(UserRegistered $event): void
+    {
+        $admin = User::where('role', 'admin')->first();
+        $admin?->notify(new NewUserRegistered($event->user));
+    }
+}</code></pre>
+            </div>
+            <h4>Listener 3 · Generate User Profile</h4>
+            <div class="code-block">
+              <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php · GenerateUserProfile.php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+              <pre><code class="language-php">&lt;?php
+namespace App\Listeners;
+
+use App\Events\UserRegistered;
+use App\Models\UserProfile;
+
+class GenerateUserProfile
+{
+    public function handle(UserRegistered $event): void
+    {
+        UserProfile::create([
+            'user_id'    => $event->user->id,
+            'source'     => $event->registrationSource,
+            'created_at' => now(),
+        ]);
+    }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step" id="step3">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h3>Register Events &amp; Listeners</h3>
+            <p>In <strong>modern Laravel (10+)</strong>, register everything inside <code>AppServiceProvider::boot()</code>:</p>
+            <div class="code-block">
+              <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php · AppServiceProvider.php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+              <pre><code class="language-php">&lt;?php
+namespace App\Providers;
+
+use App\Events\UserRegistered;
+use App\Listeners\SendWelcomeEmail;
+use App\Listeners\NotifyAdminOfNewUser;
+use App\Listeners\GenerateUserProfile;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    public function boot(): void
+    {
+        Event::listen(UserRegistered::class, SendWelcomeEmail::class);
+        Event::listen(UserRegistered::class, NotifyAdminOfNewUser::class);
+        Event::listen(UserRegistered::class, GenerateUserProfile::class);
+    }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="step" id="step4">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h3>Dispatch the Event from Your Controller</h3>
+            <div class="code-block">
+              <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php · RegisterController.php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+              <pre><code class="language-php">&lt;?php
+namespace App\Http\Controllers\Auth;
+
+use App\Events\UserRegistered;
+use App\Models\User;
+
+class RegisterController extends Controller
+{
+    public function register(RegisterRequest $request)
+    {
+        // 1. Core responsibility: create the user
+        $user = User::create($request->validated());
+
+        // 2. Fire-and-forget — listeners handle the rest
+        UserRegistered::dispatch($user, 'web');
+
+        // 3. Controller stays clean — no email, no notify here
+        return response()->json([
+            'message' => 'Registration successful!',
+            'user'    => $user,
+        ], 201);
+    }
+}</code></pre>
+            </div>
+            <div class="callout tip">
+              <div class="callout-icon">✅</div>
+              <div class="callout-body"><strong>Clean Controller</strong><p>Your controller creates a user and fires an event. Everything else — email, admin notification, profile creation — is someone else's responsibility.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section 5 ─── -->
+    <section class="section" id="dispatching-ways">
+      <span class="section-label">// 05</span>
+      <h2><span class="hash">#</span>Dispatching Events: All the Ways</h2>
+      <p>Laravel gives you multiple dispatch methods. Know them all:</p>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php · all dispatch methods</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code class="language-php">// 1. Static dispatch() — recommended, most readable
+UserRegistered::dispatch($user);
+
+// 2. Global event() helper
+event(new UserRegistered($user));
+
+// 3. Event facade
+use Illuminate\Support\Facades\Event;
+Event::dispatch(new UserRegistered($user));
+
+// 4. Dispatch if condition is true
+UserRegistered::dispatchIf($user->isActive(), $user);
+
+// 5. Dispatch unless condition is true
+UserRegistered::dispatchUnless($user->isBanned(), $user);
+
+// 6. Dispatch AFTER the DB transaction commits (prevents race conditions!)
+UserRegistered::dispatch($user)->afterCommit();
+
+// 7. Dispatch synchronously — even if listener implements ShouldQueue
+UserRegistered::dispatchSync($user);
+
+// 8. Dispatch AFTER the HTTP response is sent (non-critical tasks)
+UserRegistered::dispatchAfterResponse($user);</code></pre>
+      </div>
+      <div class="callout warning">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-body">
+          <strong>afterCommit() is Critical</strong>
+          <p>If you dispatch inside a DB transaction and it rolls back, listeners may have already run with data that no longer exists. Always use <code>->afterCommit()</code> or set <code>public bool $afterCommit = true</code> on the listener.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section 6 ─── -->
+    <section class="section" id="queued">
+      <span class="section-label">// 06</span>
+      <h2><span class="hash">#</span>Queued Event Listeners (Async Processing)</h2>
+      <p>The most powerful feature: turn any listener into a background job with <strong>zero extra code</strong>.</p>
+
+      <h3>Basic Queued Listener</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code class="language-php">use Illuminate\Contracts\Queue\ShouldQueue;
+
+class SendWelcomeEmail implements ShouldQueue
+{
+    // That's it. Laravel handles everything else.
+    public function handle(UserRegistered $event): void
+    {
+        Mail::to($event->user->email)->send(new WelcomeMail($event->user));
+    }
+}</code></pre>
+      </div>
+
+      <h3>Advanced Queue Configuration</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php · full queue config</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code class="language-php">use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+
+class SendWelcomeEmail implements ShouldQueue
+{
+    use InteractsWithQueue; // Gives access to $this->release(), $this->fail()
+
+    public string $connection  = 'redis';        // Queue connection
+    public string $queue       = 'emails';        // Named queue
+    public int    $delay       = 10;              // Delay in seconds
+    public int    $tries       = 3;               // Max attempts
+    public int    $timeout     = 60;              // Timeout in seconds
+    public bool   $afterCommit = true;            // Wait for DB commit
+
+    public function handle(UserRegistered $event): void
+    {
+        Mail::to($event->user->email)->send(new WelcomeMail($event->user));
+    }
+
+    // Handle a failed job
+    public function failed(UserRegistered $event, \Throwable $exception): void
+    {
+        \Log::error("Welcome email failed for user {$event->user->id}: "
+            . $exception->getMessage());
+    }
+}</code></pre>
+      </div>
+
+      <h3>Conditionally Queue a Listener</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code class="language-php">// Only push to queue under a specific condition
+public function shouldQueue(UserRegistered $event): bool
+{
+    return $event->registrationSource === 'mobile';
+}</code></pre>
+      </div>
+
+      <h3>Exponential Backoff on Failure</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code class="language-php">class ProcessPaymentWebhook implements ShouldQueue
+{
+    public int $tries = 5;
+
+    // Wait 1min, then 5min, then 10min, then 30min, then 1hr between retries
+    public function backoff(): array
+    {
+        return [60, 300, 600, 1800, 3600];
+    }
+
+    public function handle(PaymentWebhookReceived $event): void
+    {
+        // Gracefully retries if external API is down
+    }
+}</code></pre>
+      </div>
+
+      <h3>Queue Worker Commands</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code class="language-bash"># Basic worker
+php artisan queue:work
+
+# Specific connection and queue
+php artisan queue:work redis --queue=emails
+
+# Production worker with supervisor settings
+php artisan queue:work --tries=3 --timeout=60
+
+# Check failed jobs
+php artisan queue:failed
+
+# Retry specific failed job
+php artisan queue:retry 5
+
+# Retry ALL failed jobs
+php artisan queue:retry all</code></pre>
+      </div>
+    </section>
+
+    <!-- ─── Section 7 ─── -->
+    <section class="section" id="subscribers">
+      <span class="section-label">// 07</span>
+      <h2><span class="hash">#</span>Event Subscribers: One Class, Many Events</h2>
+      <p>An <strong>Event Subscriber</strong> is a single class that handles multiple events. Perfect for logically grouping related event handlers.</p>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php · UserActivitySubscriber.php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code class="language-php">&lt;?php
+namespace App\Listeners;
+
+use App\Events\{UserRegistered, UserLoggedIn, UserLoggedOut, UserDeleted};
+use Illuminate\Events\Dispatcher;
+
+class UserActivitySubscriber
+{
+    public function onUserRegistered(UserRegistered $event): void
+    {
+        \Log::info("New user registered: {$event->user->email}");
+    }
+
+    public function onUserLoggedIn(UserLoggedIn $event): void
+    {
+        $event->user->update(['last_login_at' => now()]);
+    }
+
+    public function onUserLoggedOut(UserLoggedOut $event): void
+    {
+        \Log::info("User logged out: {$event->user->email}");
+    }
+
+    public function onUserDeleted(UserDeleted $event): void
+    {
+        \Storage::deleteDirectory("users/{$event->user->id}");
+    }
+
+    // Maps events to methods in this class
+    public function subscribe(Dispatcher $events): array
+    {
+        return [
+            UserRegistered::class => 'onUserRegistered',
+            UserLoggedIn::class   => 'onUserLoggedIn',
+            UserLoggedOut::class  => 'onUserLoggedOut',
+            UserDeleted::class    => 'onUserDeleted',
+        ];
+    }
+}
+
+// Register in AppServiceProvider::boot()
+// Event::subscribe(UserActivitySubscriber::class);</code></pre>
+      </div>
+    </section>
+
+    <!-- ─── Section 8 ─── -->
+    <section class="section" id="wildcard">
+      <span class="section-label">// 08</span>
+      <h2><span class="hash">#</span>Wildcard Event Listeners</h2>
+      <p>Use <code>*</code> to listen to all events matching a pattern:</p>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code class="language-php">// Listen to ALL events — useful for global logging/debugging
+Event::listen('*', function (string $eventName, array $data) {
+    \Log::debug("Event fired: {$eventName}", $data);
+});
+
+// Listen to all App\Events\* events
+Event::listen('App\Events\*', function (string $eventName, array $data) {
+    // Your logic
+});</code></pre>
+      </div>
+      <div class="callout danger">
+        <div class="callout-icon">🚨</div>
+        <div class="callout-body"><strong>Production Warning</strong><p>Wildcard listeners catch everything, including internal Laravel framework events. Use them only for logging or debugging — never for production business logic.</p></div>
+      </div>
+    </section>
+
+    <!-- ─── Section 9 ─── -->
+    <section class="section" id="payloads">
+      <span class="section-label">// 09</span>
+      <h2><span class="hash">#</span>Passing Data to Events: Best Practices</h2>
+      <h3>Simple Payload</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code class="language-php">class UserRegistered
+{
+    public function __construct(public User $user) {}
+}</code></pre>
+      </div>
+      <h3>Complex / Rich Payload</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php · OrderPlaced event</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code class="language-php">class OrderPlaced
+{
+    public function __construct(
+        public readonly Order  $order,
+        public readonly User   $customer,
+        public readonly string $couponCode,
+        public readonly string $shippingMethod,
+        public readonly float  $discountAmount,
+    ) {}
+}
+
+// Dispatch with named arguments for clarity
+OrderPlaced::dispatch(
+    order: $order,
+    customer: $user,
+    couponCode: $request->coupon ?? '',
+    shippingMethod: $request->shipping_method,
+    discountAmount: $discount,
+);</code></pre>
+      </div>
+      <div class="pro-tip">
+        <div class="pro-tip-label">✨ Best Practice</div>
+        <p>Use <code>readonly</code> on event properties. This ensures listeners <strong>cannot accidentally mutate the event data</strong> — keeping your events immutable and predictable.</p>
+      </div>
+    </section>
+
+    <!-- ─── Section 10 ─── -->
+    <section class="section" id="propagation">
+      <span class="section-label">// 10</span>
+      <h2><span class="hash">#</span>Stopping Event Propagation</h2>
+      <p>Return <code>false</code> from a listener's <code>handle()</code> to stop subsequent listeners from running:</p>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code class="language-php">class FraudCheckListener
+{
+    public function handle(OrderPlaced $event): bool|null
+    {
+        if ($this->isFraudulent($event->order)) {
+            // Stops SendOrderConfirmation and other listeners
+            return false;
+        }
+        return null; // Continue to next listener
+    }
+}</code></pre>
+      </div>
+      <div class="callout warning">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-body"><strong>Sync Only</strong><p>Propagation stopping only works for synchronous listeners. Queued listeners run independently and cannot be stopped by other listeners.</p></div>
+      </div>
+    </section>
+
+    <!-- ─── Section 11 ─── -->
+    <section class="section" id="testing">
+      <span class="section-label">// 11</span>
+      <h2><span class="hash">#</span>Testing Event Listeners</h2>
+
+      <h3>Test 1 · Assert Event Was Dispatched</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php · PestPHP</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code class="language-php">use App\Events\UserRegistered;
+use Illuminate\Support\Facades\Event;
+
+it('dispatches UserRegistered event on registration', function () {
+    Event::fake();
+
+    $this->postJson('/api/register', [
+        'name'     => 'John Doe',
+        'email'    => 'john@example.com',
+        'password' => 'password123',
+    ])->assertStatus(201);
+
+    Event::assertDispatched(UserRegistered::class,
+        fn($e) => $e->user->email === 'john@example.com'
+    );
+
+    Event::assertDispatchedTimes(UserRegistered::class, 1);
+});</code></pre>
+      </div>
+
+      <h3>Test 2 · Test the Listener in Pure Isolation</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code class="language-php">it('sends a welcome email when UserRegistered fires', function () {
+    Mail::fake();
+
+    $user     = User::factory()->create();
+    $event    = new UserRegistered($user);
+    $listener = new SendWelcomeEmail();
+
+    $listener->handle($event);
+
+    Mail::assertSent(WelcomeMail::class,
+        fn($mail) => $mail->hasTo($user->email)
+    );
+});</code></pre>
+      </div>
+
+      <h3>Test 3 · Test Queued Listeners</h3>
+      <div class="code-block">
+        <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+        <pre><code class="language-php">it('pushes welcome email to the queue', function () {
+    Queue::fake();
+    $user = User::factory()->create();
+
+    UserRegistered::dispatch($user);
+
+    Queue::assertPushed(SendWelcomeEmail::class);
+});</code></pre>
+      </div>
+    </section>
+
+    <!-- ─── Section 12 ─── -->
+    <section class="section" id="cannot-do">
+      <span class="section-label">// 12</span>
+      <h2><span class="hash">#</span>What You Cannot Do with Event Listeners</h2>
+
+      <div class="mistake-block">
+        <div class="mistake-label">❌ Cannot get a return value from an event</div>
+        <div class="code-block" style="margin:0.75rem 0 0;">
+          <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code class="language-php">// $result is a Collection of listener results — don't rely on it
+$result = UserRegistered::dispatch($user);</code></pre>
+        </div>
+      </div>
+
+      <div class="mistake-block">
+        <div class="mistake-label">❌ Queued listeners cannot stop propagation</div>
+        <p style="font-size:0.88rem;color:var(--text2);margin:0.5rem 0 0;">Queued listeners run in isolation. They cannot affect other listeners.</p>
+      </div>
+
+      <div class="mistake-block">
+        <div class="mistake-label">❌ Queued listeners capture state at dispatch time</div>
+        <div class="code-block" style="margin:0.75rem 0 0;">
+          <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code class="language-php">$user = User::find(1);
+UserRegistered::dispatch($user);   // Serializes user at THIS moment
+
+$user->update(['status' => 'verified']); // Listener won't see this update!</code></pre>
+        </div>
+      </div>
+
+      <div class="mistake-block">
+        <div class="mistake-label">❌ Events don't fire automatically on Eloquent actions</div>
+        <p style="font-size:0.88rem;color:var(--text2);margin:0.5rem 0 0;">
+          If you want to hook into <code>User::create()</code> automatically without calling <code>dispatch()</code>,
+          use <a href="how-to-use-laravel-observers-clean-code.html">Laravel Model Observers</a> instead.
+        </p>
+      </div>
+    </section>
+
+    <!-- ─── Section 13 ─── -->
+    <section class="section" id="pro-tips">
+      <span class="section-label">// 13</span>
+      <h2><span class="hash">#</span>Pro Tips &amp; Advanced Tricks</h2>
+
+      <div class="pro-tip">
+        <div class="pro-tip-label">✅ Pro Tip 1 · dispatchAfterResponse()</div>
+        <p>Dispatch the event <em>after</em> the HTTP response has been sent to the user. Perfect for analytics and logging — anything non-critical.</p>
+        <div class="code-block" style="margin:0.75rem 0 0;">
+          <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code class="language-php">UserRegistered::dispatchAfterResponse($user);
+// User sees response instantly. Side effects happen after.</code></pre>
+        </div>
+      </div>
+
+      <div class="pro-tip">
+        <div class="pro-tip-label">✅ Pro Tip 2 · Constructor Dependency Injection</div>
+        <p>Listeners are resolved from Laravel's service container. Inject services, repositories, or loggers directly:</p>
+        <div class="code-block" style="margin:0.75rem 0 0;">
+          <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code class="language-php">class SendWelcomeEmail implements ShouldQueue
+{
+    public function __construct(
+        private readonly MailService $mailService,
+        private readonly LogService  $logger,
+    ) {}
+
+    public function handle(UserRegistered $event): void
+    {
+        $this->logger->info("Sending welcome email to: {$event->user->email}");
+        $this->mailService->sendWelcome($event->user);
+    }
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="pro-tip">
+        <div class="pro-tip-label">✅ Pro Tip 3 · Named Queues for Priority</div>
+        <div class="code-block" style="margin:0.75rem 0 0;">
+          <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php + bash</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code class="language-php">class SendWelcomeEmail implements ShouldQueue {
+    public string $queue = 'high-priority';
+}
+class UpdateAnalyticsDashboard implements ShouldQueue {
+    public string $queue = 'low-priority';
+}
+
+// Then run dedicated workers per queue:
+// php artisan queue:work --queue=high-priority
+// php artisan queue:work --queue=low-priority</code></pre>
+        </div>
+      </div>
+
+      <div class="pro-tip">
+        <div class="pro-tip-label">✅ Pro Tip 4 · Auto Event Discovery (Laravel 10+)</div>
+        <div class="code-block" style="margin:0.75rem 0 0;">
+          <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code class="language-php">// In AppServiceProvider::boot()
+Event::discover(); // Scans Listeners folder and auto-wires by type-hint
+
+// Or specify a custom path:
+Event::discover(app_path('Listeners'));</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section 14 ─── -->
+    <section class="section" id="mistakes">
+      <span class="section-label">// 14</span>
+      <h2><span class="hash">#</span>Common Mistakes to Avoid</h2>
+
+      <div class="mistake-block">
+        <div class="mistake-label">❌ Mistake 1 · Dispatching Inside a Transaction Without afterCommit</div>
+        <div class="code-block" style="margin:0.75rem 0 0;">
+          <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code class="language-php">// ❌ DANGEROUS: if transaction rolls back, email is already sent
+DB::transaction(function () use ($user) {
+    $user->save();
+    UserRegistered::dispatch($user); // Fires before commit!
+});
+
+// ✅ SAFE: Set $afterCommit = true on the listener class
+public bool $afterCommit = true;</code></pre>
+        </div>
+      </div>
+
+      <div class="mistake-block">
+        <div class="mistake-label">❌ Mistake 2 · Forgetting to Start the Queue Worker</div>
+        <div class="code-block" style="margin:0.75rem 0 0;">
+          <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code class="language-bash"># Development: auto-restarts on file changes
+php artisan queue:listen
+
+# Production: run with supervisor for auto-restart
+php artisan queue:work --tries=3 --timeout=60</code></pre>
+        </div>
+      </div>
+
+      <div class="mistake-block">
+        <div class="mistake-label">❌ Mistake 3 · Swallowing Exceptions Silently</div>
+        <div class="code-block" style="margin:0.75rem 0 0;">
+          <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code class="language-php">// ❌ Bad: failures are invisible
+public function handle(UserRegistered $event): void
+{
+    try { Mail::send(...); } catch (\Exception $e) { /* silent */ }
+}
+
+// ✅ Good: implement failed() for proper failure handling
+public function failed(UserRegistered $event, \Throwable $exception): void
+{
+    \Log::critical("Critical failure: " . $exception->getMessage());
+    // Alert your team via Slack, PagerDuty, etc.
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="mistake-block">
+        <div class="mistake-label">❌ Mistake 4 · Too Much Logic in One handle() Method</div>
+        <div class="code-block" style="margin:0.75rem 0 0;">
+          <div class="code-header"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-lang">php</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <pre><code class="language-php">// ❌ Bad: one listener doing 5 different things
+public function handle(OrderPlaced $event): void
+{
+    Mail::send(...);    // Concern 1
+    Stripe::charge(...); // Concern 2
+    Slack::notify(...);  // Concern 3
+    Cache::forget(...);  // Concern 4
+    $event->order->update([...]); // Concern 5
+}
+
+// ✅ Good: separate listener per concern — each independently testable</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section 15 ─── -->
+    <section class="section" id="comparison">
+      <span class="section-label">// 15</span>
+      <h2><span class="hash">#</span>Event Listeners vs Observers: Quick Comparison</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Event Listeners</th>
+              <th>Model Observers</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Trigger</td><td>Manual <code>dispatch()</code></td><td>Automatic on Eloquent</td></tr>
+            <tr><td>Scope</td><td>Application-wide</td><td>Single model only</td></tr>
+            <tr><td>Custom payload</td><td class="yes">✅ Any data</td><td class="no">❌ Model only</td></tr>
+            <tr><td>Async / ShouldQueue</td><td class="yes">✅ Yes</td><td class="no">❌ Not directly</td></tr>
+            <tr><td>Fires on mass update</td><td class="yes">✅ If dispatched manually</td><td class="no">❌ Bypassed</td></tr>
+            <tr><td>Multiple handlers</td><td class="yes">✅ Unlimited</td><td class="yes">✅ Multiple observers</td></tr>
+            <tr><td>Best for</td><td>Business workflows</td><td>Data integrity tasks</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout purple">
+        <div class="callout-icon">🔗</div>
+        <div class="callout-body">
+          <strong>Full Comparison Guide</strong>
+          <p>For a full architectural breakdown with every edge case and decision flowchart, read: <a href="laravel-event-listeners-vs-observers-difference.html">Laravel Event Listeners vs. Model Observers — Which to Choose?</a></p>
+        </div>
+      </div>
+      <div class="callout info">
+        <div class="callout-icon">📘</div>
+        <div class="callout-body">
+          <strong>Need Observers Instead?</strong>
+          <p>If your use case is about reacting to database model changes (like auto-generating slugs or cache invalidation), check out: <a href="how-to-use-laravel-observers-clean-code.html">How to Use Laravel Model Observers</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Section 16 ─── -->
+    <section class="section" id="faq">
+      <span class="section-label">// 16</span>
+      <h2><span class="hash">#</span>Frequently Asked Questions</h2>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Can one event have multiple listeners?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a"><p>Yes. Register as many listeners as you want for a single event using multiple <code>Event::listen()</code> calls. They all execute in registration order.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Can one listener handle multiple events?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a"><p>Use an <strong>Event Subscriber</strong> for that. A subscriber is a single class with a <code>subscribe(Dispatcher $events)</code> method that maps multiple events to handler methods within the same class.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Can I stop other listeners from running?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a"><p>Yes — return <code>false</code> from a synchronous listener's <code>handle()</code> method. This prevents subsequent listeners from executing. Note this does <em>not</em> work for queued listeners.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Do I have to register events and listeners manually?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a"><p>Not in Laravel 10+ — you can call <code>Event::discover()</code> in <code>AppServiceProvider::boot()</code> and Laravel will automatically wire listeners by their type-hinted event in <code>handle()</code>. Manual registration is still preferred in large teams for explicitness.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            What's the difference between event() and Event::dispatch()?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a"><p>They are functionally identical. <code>Event::dispatch()</code> is more expressive in modern code. <code>event()</code> is a global helper. Use whichever your team prefers, but be consistent.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Can queued listeners access session or request data?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a"><p>No. Queued listeners run in a separate background process with no HTTP context — the session and request objects don't exist there. If you need request data, pass it explicitly via the event class constructor at dispatch time.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            What happens when a queued listener fails?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a"><p>Laravel moves it to the <code>failed_jobs</code> table after exhausting all retry attempts. Use <code>php artisan queue:retry</code> to reprocess, and implement the <code>failed()</code> method on your listener for custom failure handling and alerting.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Summary ─── -->
+    <section class="section" id="summary">
+      <span class="section-label">// 17</span>
+      <h2><span class="hash">#</span>Summary</h2>
+      <div class="summary-box">
+        <h3>Laravel Event Listeners — The Complete Checklist</h3>
+        <ul class="summary-list">
+          <li><strong>Create</strong> event classes as lightweight data containers using <code>Dispatchable</code>, <code>SerializesModels</code></li>
+          <li><strong>Create</strong> listener classes with a single <code>handle(EventClass $event): void</code> method</li>
+          <li><strong>Register</strong> bindings in <code>AppServiceProvider::boot()</code> via <code>Event::listen()</code></li>
+          <li><strong>Dispatch</strong> from anywhere with <code>MyEvent::dispatch($data)</code></li>
+          <li><strong>Queue</strong> any listener by implementing <code>ShouldQueue</code></li>
+          <li><strong>Configure</strong> retry logic, timeouts, delays, and named queues on the listener class</li>
+          <li><strong>Group</strong> related handlers with Event Subscribers</li>
+          <li><strong>Test</strong> with <code>Event::fake()</code>, <code>Queue::fake()</code>, and isolated unit tests</li>
+          <li><strong>Always</strong> use <code>$afterCommit = true</code> when dispatching inside DB transactions</li>
+          <li><strong>Implement</strong> <code>failed()</code> on every queued listener for error handling</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ─── Related Articles ─── -->
+    <div class="related-section">
+      <h2>Continue Learning</h2>
+      <div class="related-grid">
+        <a class="related-card" href="how-to-use-laravel-observers-clean-code.html">
+          <div class="related-badge orange">📖 Article 2</div>
+          <h3>How to Use Laravel Model Observers</h3>
+          <p>Master every Eloquent lifecycle hook — creating, updating, deleting, soft-deletes, and more. Includes real-world examples for slug generation, cache invalidation, and audit logging.</p>
+          <span class="read-link">Read the Observer Guide →</span>
+        </a>
+        <a class="related-card" href="laravel-event-listeners-vs-observers-difference.html">
+          <div class="related-badge purple">⚖️ Article 3</div>
+          <h3>Laravel Event Listeners vs. Model Observers</h3>
+          <p>The definitive architectural comparison. Understand exactly when to use each pattern with a decision flowchart, edge-case analysis, and real-world architecture diagrams.</p>
+          <span class="read-link">Read the Comparison →</span>
+        </a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Scroll to Top -->
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+<script>
+  // Highlight.js init
+  document.addEventListener('DOMContentLoaded', () => { hljs.highlightAll(); });
+
+  // Reading progress bar
+  window.addEventListener('scroll', () => {
+    const doc = document.documentElement;
+    const scrollTop = doc.scrollTop || document.body.scrollTop;
+    const scrollHeight = doc.scrollHeight - doc.clientHeight;
+    const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+    document.getElementById('progress-bar').style.width = progress + '%';
+
+    // Scroll to top button
+    const btn = document.getElementById('scroll-top');
+    if (scrollTop > 400) btn.classList.add('visible');
+    else btn.classList.remove('visible');
+
+    // Active TOC link
+    const sections = document.querySelectorAll('[id]');
+    const tocLinks = document.querySelectorAll('.toc-nav a');
+    let current = '';
+    sections.forEach(s => {
+      if (s.getBoundingClientRect().top < 120) current = s.id;
+    });
+    tocLinks.forEach(a => {
+      a.classList.remove('active');
+      if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+    });
+  });
+
+  // Copy button
+  function copyCode(btn) {
+    const code = btn.closest('.code-block').querySelector('code');
+    navigator.clipboard.writeText(code.innerText).then(() => {
+      btn.textContent = 'copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  // FAQ toggle
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+</script>
+
+</body>
+</html>
